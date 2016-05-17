@@ -24,7 +24,7 @@ private:
 		T2 value;				// pointer to stored value.
 	};
 
-	Node<T>* pBase;		// pointer to base of the list
+	Node<T>* pBase;				// pointer to base of the list
 	Node<T>* pTop;				// pointer to top of the list
 	mutable Node<T>* pCurrent;	// pointer to current node
 	uint32_t nodeCount;			// count of nodes in the list
