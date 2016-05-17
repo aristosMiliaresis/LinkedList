@@ -5,11 +5,11 @@
 
 
 template <class T> const char* LinkedList<T>::MException::errStrings[] = {
-	"pop() failed: list is empty!",				// set when pop() is called and list is empty.
+	"pop() failed: list is empty!",						// set when pop() is called and list is empty.
 	"prev() failed: index points to base of the list!",	// set when prev() is called and current node is at the base of the list.
 	"next() failed: index points to top of the list!",	// set when next() is called and current node is at the top of the list.
-	"push/insert() failed: list is full!",			// set when push() or insert() is called and nodeCount == UINT32_MAX.
-	"goTo() failed: index out of range!"			// set when goTo() is called with index outside the lists range.
+	"push/insert() failed: list is full!",				// set when push() or insert() is called and nodeCount == UINT32_MAX.
+	"goTo() failed: index out of range!"				// set when goTo() is called with index outside the lists range.
 };
 
 
