@@ -1,7 +1,6 @@
 #include "linkedList.hpp"
 
 #include <iostream>
-#include <stdint.h>
 
 
 template <class T> const char* LinkedList<T>::MException::errStrings[] = {
