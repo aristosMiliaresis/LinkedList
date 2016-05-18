@@ -5,11 +5,11 @@
 
 
 template <class T> const char* LinkedList<T>::MException::errStrings[] = {
-	"dequeue/pop() failed: list is empty!",				// when dequeue() or pop() is called and list is empty.
-	"prev() failed: index points to head of the list!",	// when prev() is called and list index is at the head of the list.
-	"next() failed: index points to tail of the list!",	// when next() is called and list index is at the tail of the list.
-	"enqueue/push/set() failed: list is full!",			// when enqueue(), push() or set() is called and itemCount == UINT32_MAX.
-	"get() failed: index out of range!"					// when get() is called with index outside the lists range.
+	"dequeue/pop() failed: list is empty!",	               // when dequeue() or pop() is called and list is empty.
+	"prev() failed: index points to head of the list!",    // when prev() is called and list index is at the head of the list.
+	"next() failed: index points to tail of the list!",    // when next() is called and list index is at the tail of the list.
+	"enqueue/push/set() failed: list is full!",            // when enqueue(), push() or set() is called and itemCount == UINT32_MAX.
+	"get() failed: index out of range!"                    // when get() is called with index outside the lists range.
 };
 
 
