@@ -24,8 +24,8 @@ private:
 		T2 value;				// pointer to stored value.
 	};
 
-	Node<T>* pBase;				// pointer to base of the list
-	Node<T>* pTop;				// pointer to top of the list
+	Node<T>* pHead;				// pointer to head of the list
+	Node<T>* pTail;				// pointer to tail of the list
 	mutable Node<T>* pCurrent;	// pointer to current node
 	uint32_t nodeCount;			// count of nodes in the list
 
@@ -63,15 +63,15 @@ public:
 	};
 	
 	/**
-	 * Adds new node at the top of the list
-	 * @param the value to be pushed at the top of the list.
+	 * Adds new node at the tail of the list
+	 * @param the value to be pushed at the tail of the list.
 	 * @throws ERR_LIST_FULL if node count equals UINT32_MAX.
 	 */
 	void push(T value);
 	
 	/**
-	 * Removes node at the top of the list.
-	 * @return the value at the top of the list.
+	 * Removes node at the tail of the list.
+	 * @return the value at the tail of the list.
 	 * @throws ERR_EMPTY_LIST if list is empty.
 	 */
 	T pop();
@@ -109,28 +109,28 @@ public:
 	T goTo(uint32_t index) const;
 	
 	/**
-	 * Go to the base of the list
-	 * @return the value at the base of the list.
+	 * Go to the head of the list
+	 * @return the value at the head of the list.
 	 */
-	T goToBase() const;
+	T goToHead() const;
 	
 	/**
-	 * Go to the top of the list
-	 * @return the value at the top of the list.
+	 * Go to the tail of the list
+	 * @return the value at the tail of the list.
 	 */
-	T goToTop() const;
+	T goToTail() const;
 	
 	/**
 	 * Go to next node.
 	 * @return the next value.
-	 * @throws ERR_NO_NEXT if index at top of list.
+	 * @throws ERR_NO_NEXT if index at tail of list.
 	 */
 	T next() const;
 	
 	/**
 	 * Go to previous node.
 	 * @return the previous value.
-	 * @throws ERR_NO_PREV if index at base of list.
+	 * @throws ERR_NO_PREV if index at head of list.
 	 */
 	T prev() const;
 	
