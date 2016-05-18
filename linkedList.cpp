@@ -6,8 +6,8 @@
 
 template <class T> const char* LinkedList<T>::MException::errStrings[] = {
 	"pop() failed: list is empty!",						// set when pop() is called and list is empty.
-	"prev() failed: index points to base of the list!",	// set when prev() is called and current node is at the base of the list.
-	"next() failed: index points to top of the list!",	// set when next() is called and current node is at the top of the list.
+	"prev() failed: index points to head of the list!",	// set when prev() is called and current node is at the head of the list.
+	"next() failed: index points to tail of the list!",	// set when next() is called and current node is at the tail of the list.
 	"push/insert() failed: list is full!",				// set when push() or insert() is called and nodeCount == UINT32_MAX.
 	"goTo() failed: index out of range!"				// set when goTo() is called with index outside the lists range.
 };
@@ -16,22 +16,22 @@ template <class T> const char* LinkedList<T>::MException::errStrings[] = {
 template <class T> LinkedList<T>::LinkedList() : nodeCount(0) 
 {
 	try {
-		pBase = new struct Node<T>();
+		pHead = new struct Node<T>();
 	} catch (const std::bad_alloc& exc) {
 		std::cerr << exc.what() << std::endl;
 		throw exc;
 	}
 	
-	pBase->pPrev = NULL;
-	pBase->pNext = NULL;
-	pTop = pBase;
-	pCurrent = pBase;
+	pHead->pPrev = NULL;
+	pHead->pNext = NULL;
+	pTail = pHead;
+	pCurrent = pHead;
 }
 
 
 template <class T> LinkedList<T>::LinkedList(const LinkedList& obj) : LinkedList()
 {
-	obj.goToBase();
+	obj.goToHead();
 	
 	this->push(obj.getCurrent());
 	while (obj.hasNext())
@@ -49,7 +49,7 @@ template <class T> LinkedList<T>::~LinkedList()
 		}
 	} while (true);
 
-	delete pBase;
+	delete pHead;
 }
 
 
@@ -63,19 +63,19 @@ template <class T> void LinkedList<T>::push(T value)
 	else if (nodeCount != 0)
 	{
 		try {
-			pTop->pNext = new struct Node<T>();
+			pTail->pNext = new struct Node<T>();
 		} catch (const std::bad_alloc& exc) {
 			std::cerr << exc.what() << std::endl;
 			throw exc;
 			return;
 		}	
-		pTop->pNext->pPrev = pTop;
-		pTop = pTop->pNext;
+		pTail->pNext->pPrev = pTail;
+		pTail = pTail->pNext;
 	}
 	
 	nodeCount++;	
-	pTop->value = value;
-	pCurrent = pTop;
+	pTail->value = value;
+	pCurrent = pTail;
 	
 	return;
 }
@@ -83,13 +83,13 @@ template <class T> void LinkedList<T>::push(T value)
 
 template <class T> T LinkedList<T>::pop()
 {
-	const T tmpValue = pTop->value;
+	const T tmpValue = pTail->value;
 
 	if (nodeCount > 1)
 	{
-		pTop = pTop->pPrev;
-		delete pTop->pNext;
-		pTop->pNext = NULL;
+		pTail = pTail->pPrev;
+		delete pTail->pNext;
+		pTail->pNext = NULL;
 	}
 	else if (nodeCount == 0)
 	{
@@ -98,7 +98,7 @@ template <class T> T LinkedList<T>::pop()
 	}
 	
 	nodeCount--;
-	pCurrent = pTop;
+	pCurrent = pTail;
 	return tmpValue;
 }
 
@@ -179,7 +179,7 @@ template <class T> T LinkedList<T>::goTo(uint32_t index) const
 		return T();
 	}
 
-	(void) this->goToBase();
+	(void) this->goToHead();
 	for (int i = 0; i < index; i++)
 		(void) this->next();
 	
@@ -187,16 +187,16 @@ template <class T> T LinkedList<T>::goTo(uint32_t index) const
 }
 
 
-template <class T> T LinkedList<T>::goToBase() const
+template <class T> T LinkedList<T>::goToHead() const
 {
-	pCurrent = pBase;
+	pCurrent = pHead;
 	return pCurrent->value;
 }
 
 
-template <class T> T LinkedList<T>::goToTop() const
+template <class T> T LinkedList<T>::goToTail() const
 {
-	pCurrent = pTop;
+	pCurrent = pTail;
 	return pCurrent->value;
 }
 
@@ -259,7 +259,7 @@ template <class T> uint32_t LinkedList<T>::getCurrentIndex() const
 	const Node<T>* tmp = pCurrent;
 	uint32_t index = 0;
 
-	(void) this->goToBase();
+	(void) this->goToHead();
 	while (pCurrent != tmp) {
 		try {
 			(void) this->next();
