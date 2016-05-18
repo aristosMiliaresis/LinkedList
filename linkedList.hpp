@@ -13,11 +13,6 @@
  */
 template <class T> class LinkedList {
 private:
-	Node<T>* pHead;	            // pointer to head of the list
-	Node<T>* pTail;             // pointer to tail of the list
-	mutable Node<T>* pIndex;    // list index pointer
-	uint32_t itemCount;         // count of items in the list
-	
 	/**
 	 * <h1>Node</h1>
 	 * 
@@ -28,6 +23,11 @@ private:
 		struct Node* pNext;    // pointer to next node.
 		T2 item;               // pointer to stored item.
 	};
+	
+	Node<T>* pHead;	            // pointer to head of the list
+	Node<T>* pTail;             // pointer to tail of the list
+	mutable Node<T>* pIndex;    // list index pointer
+	uint32_t itemCount;         // count of items in the list
 	
 	/**
 	 * Custom exception object class.
