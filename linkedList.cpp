@@ -26,7 +26,7 @@ template <class T> LinkedList<T>::LinkedList() : nodeCount(0)
 	pHead->pNext = NULL;
 	pTail = pHead;
 	pCurrent = pHead;
-}
+} 
 
 
 template <class T> LinkedList<T>::LinkedList(const LinkedList& obj) : LinkedList()
