@@ -5,15 +5,15 @@
 
 
 template <class T> const char* LinkedList<T>::MException::errStrings[] = {
-	"pop() failed: list is empty!",						// set when pop() is called and list is empty.
-	"prev() failed: index points to head of the list!",	// set when prev() is called and current node is at the head of the list.
-	"next() failed: index points to tail of the list!",	// set when next() is called and current node is at the tail of the list.
-	"push/insert() failed: list is full!",				// set when push() or insert() is called and nodeCount == UINT32_MAX.
-	"goTo() failed: index out of range!"				// set when goTo() is called with index outside the lists range.
+	"dequeue/pop() failed: list is empty!",				// when dequeue() or pop() is called and list is empty.
+	"prev() failed: index points to head of the list!",	// when prev() is called and list index is at the head of the list.
+	"next() failed: index points to tail of the list!",	// when next() is called and list index is at the tail of the list.
+	"enqueue/push/set() failed: list is full!",			// when enqueue(), push() or set() is called and itemCount == UINT32_MAX.
+	"get() failed: index out of range!"					// when get() is called with index outside the lists range.
 };
 
 
-template <class T> LinkedList<T>::LinkedList() : nodeCount(0) 
+template <class T> LinkedList<T>::LinkedList() : itemCount(0) 
 {
 	try {
 		pHead = new struct Node<T>();
@@ -25,15 +25,13 @@ template <class T> LinkedList<T>::LinkedList() : nodeCount(0)
 	pHead->pPrev = NULL;
 	pHead->pNext = NULL;
 	pTail = pHead;
-	pCurrent = pHead;
+	pIndex = pHead;
 }
 
 
 template <class T> LinkedList<T>::LinkedList(const LinkedList& obj) : LinkedList()
 {
-	obj.goToHead();
-	
-	this->push(obj.getCurrent());
+	this->push(obj.get(0));
 	while (obj.hasNext())
 		this->push(obj.next());
 }
@@ -53,14 +51,14 @@ template <class T> LinkedList<T>::~LinkedList()
 }
 
 
-template <class T> void LinkedList<T>::push(T value)
+template <class T> void LinkedList<T>::push(T item)
 {
-	if (nodeCount == UINT32_MAX)
+	if (itemCount == UINT32_MAX)
 	{
 		throw MException(MException::errCodes::ERR_LIST_FULL);
 		return;
 	}
-	else if (nodeCount != 0)
+	else if (itemCount != 0)
 	{
 		try {
 			pTail->pNext = new struct Node<T>();
@@ -73,9 +71,9 @@ template <class T> void LinkedList<T>::push(T value)
 		pTail = pTail->pNext;
 	}
 	
-	nodeCount++;	
-	pTail->value = value;
-	pCurrent = pTail;
+	itemCount++;	
+	pTail->item = item;
+	pIndex = pTail;
 	
 	return;
 }
@@ -83,70 +81,131 @@ template <class T> void LinkedList<T>::push(T value)
 
 template <class T> T LinkedList<T>::pop()
 {
-	const T tmpValue = pTail->value;
+	const T oldItem = pTail->item;
 
-	if (nodeCount > 1)
+	if (itemCount > 1)
 	{
 		pTail = pTail->pPrev;
 		delete pTail->pNext;
 		pTail->pNext = NULL;
 	}
-	else if (nodeCount == 0)
+	else if (itemCount == 0)
 	{
 		throw MException(MException::errCodes::ERR_EMPTY_LIST);
 		return T();
 	}
 	
-	nodeCount--;
-	pCurrent = pTail;
-	return tmpValue;
+	itemCount--;
+	pIndex = pTail;
+	return oldItem;
 }
 
 
-template <class T> bool LinkedList<T>::insert(T value, uint32_t index)
+template <class T> void LinkedList<T>::enqueue(T item)
 {
-	if (nodeCount == UINT32_MAX)
+	if (itemCount == UINT32_MAX)
+	{
+		throw MException(MException::errCodes::ERR_LIST_FULL);
+		return;
+	}
+	else if (itemCount != 0)
+	{
+		Node<T>* newNode = new struct Node<T>();
+	
+		newNode->pPrev = NULL;
+		newNode->pNext = pHead;
+		pHead->pPrev = newNode;
+		pHead = newNode;
+	}
+
+	pHead->item = item;
+	pIndex = pHead;
+	itemCount++;
+}
+	
+	
+template <class T> T LinkedList<T>::dequeue()
+{
+	const T oldItem = pHead->item;
+	
+	if (itemCount > 1)
+	{
+		pHead = pHead->pNext;
+		delete pHead->pPrev;
+		pHead->pPrev = NULL;
+	}
+	else if (itemCount == 0)
+	{
+		throw MException(MException::errCodes::ERR_EMPTY_LIST);
+		return T();
+	}
+	
+	itemCount--;
+	pIndex = pHead;
+	return oldItem;
+}
+	
+
+template <class T> bool LinkedList<T>::set(T item, uint32_t index)
+{
+	if (itemCount == UINT32_MAX)
 	{
 		throw MException(MException::errCodes::ERR_LIST_FULL);
 		return false;
 	}
 	
 	try {
-		(void) this->goTo(index);
+		(void) this->get(index);
 	} catch (const LinkedList<T>::MException& e) {
-		std::cerr << "LinkedList(" << this << ") Error in insert() > " << e.what() << std::endl;
+		std::cerr << "LinkedList(" << this << ") Error in set() > " << e.what() << std::endl;
 		return false;
 	}
 
-	Node<T>* tmp = pCurrent->pPrev;
+	Node<T>* prevNode = pIndex->pPrev;
 	try {
-		pCurrent->pPrev = new struct Node<T>();
+		pIndex->pPrev = new struct Node<T>();
 	} catch (const std::bad_alloc& exc) {
 		std::cerr << exc.what() << std::endl;
 		throw exc;
 		return false;
 	}
-	pCurrent->pPrev->pNext = pCurrent;
-	pCurrent->pPrev->value = value;
-	pCurrent->pPrev->pPrev = tmp;
-	pCurrent->pPrev->pPrev->pNext = pCurrent->pPrev;
-	pCurrent = pCurrent->pPrev;
+	pIndex->pPrev->pNext = pIndex;
+	pIndex->pPrev->item = item;
+	pIndex->pPrev->pPrev = prevNode;
+	pIndex->pPrev->pPrev->pNext = pIndex->pPrev;
+	pIndex = pIndex->pPrev;
 
-	nodeCount++;
+	itemCount++;
 	return true;
+}
+	
+	
+template <class T> T LinkedList<T>::get(uint32_t index) const
+{
+	if (index >= itemCount)
+	{
+		throw MException(MException::errCodes::INDEX_OUT_OF_RANGE);
+		return T();
+	}
+
+	pIndex = pHead;
+	for (uint32_t i = 0; i < index; i++)
+		(void) this->next();
+	
+	return pIndex->item;
 }
 
 
-template <class T> bool LinkedList<T>::replace(T value, uint32_t index)
+template <class T> bool LinkedList<T>::replace(T item, uint32_t index)
 {
 	try {
-		(void) this->goTo(index);
+		(void) this->get(index);
 	} catch (const LinkedList<T>::MException& e) {
 		std::cerr << "LinkedList(" << this << ") Error in replace() > " << e.what() << std::endl;
 		return false;
 	}
 
-	pCurrent->value = value;
+	pIndex->item = item;
 	return true;
 }
 
@@ -154,59 +213,29 @@ template <class T> bool LinkedList<T>::replace(T value, uint32_t index)
 template <class T> bool LinkedList<T>::remove(uint32_t index)
 {
 	try {
-		(void) this->goTo(index);
+		(void) this->get(index);
 	} catch (const LinkedList<T>::MException& e) {
 		std::cerr << "LinkedList(" << this << ") Error in remove() > " << e.what() << std::endl;
 		return false;
 	}
 
-	const Node<T>* tmpNode = pCurrent;
-	pCurrent->pPrev->pNext = pCurrent->pNext;
-	pCurrent->pPrev->pNext->pPrev = pCurrent->pPrev;
-	pCurrent = pCurrent->pPrev;
+	const Node<T>* oldNode = pIndex;
+	pIndex->pPrev->pNext = pIndex->pNext;
+	pIndex->pPrev->pNext->pPrev = pIndex->pPrev;
+	pIndex = pIndex->pPrev;
 
-	nodeCount--;
-	delete tmpNode;
+	itemCount--;
+	delete oldNode;
 	return true;
-}
-
-
-template <class T> T LinkedList<T>::goTo(uint32_t index) const
-{
-	if (index >= nodeCount)
-	{
-		throw MException(MException::errCodes::INDEX_OUT_OF_RANGE);
-		return T();
-	}
-
-	(void) this->goToHead();
-	for (int i = 0; i < index; i++)
-		(void) this->next();
-	
-	return pCurrent->value;
-}
-
-
-template <class T> T LinkedList<T>::goToHead() const
-{
-	pCurrent = pHead;
-	return pCurrent->value;
-}
-
-
-template <class T> T LinkedList<T>::goToTail() const
-{
-	pCurrent = pTail;
-	return pCurrent->value;
 }
 
 
 template <class T> T LinkedList<T>::next() const
 {
-	if (pCurrent->pNext != NULL)
+	if (pIndex->pNext != NULL)
 	{
-		pCurrent = pCurrent->pNext;
-		return pCurrent->value;
+		pIndex = pIndex->pNext;
+		return pIndex->item;
 	}
 	
 	throw MException(MException::errCodes::ERR_NO_NEXT);
@@ -216,10 +245,10 @@ template <class T> T LinkedList<T>::next() const
 
 template <class T> T LinkedList<T>::prev() const
 {
-	if (pCurrent->pPrev != NULL)
+	if (pIndex->pPrev != NULL)
 	{
-		pCurrent = pCurrent->pPrev;
-		return pCurrent->value;
+		pIndex = pIndex->pPrev;
+		return pIndex->item;
 	}
 	
 	throw MException(MException::errCodes::ERR_NO_PREV);
@@ -229,45 +258,17 @@ template <class T> T LinkedList<T>::prev() const
 
 template <class T> bool LinkedList<T>::hasNext() const
 {
-	return (pCurrent->pNext != NULL);
+	return (pIndex->pNext != NULL);
 }
 
 
 template <class T> bool LinkedList<T>::hasPrev() const
 {
-	return (pCurrent->pPrev != NULL);
+	return (pIndex->pPrev != NULL);
 }
 
 
-template <class T> T LinkedList<T>::getCurrent() const
+template <class T> uint32_t LinkedList<T>::count() const
 {
-	return pCurrent->value;
-}
-
-
-template <class T> uint32_t LinkedList<T>::getCount() const
-{
-	return nodeCount;
-}
-
-
-template <class T> uint32_t LinkedList<T>::getCurrentIndex() const
-{
-	if (nodeCount == 0)
-		throw MException(MException::errCodes::ERR_EMPTY_LIST);
-
-	const Node<T>* tmp = pCurrent;
-	uint32_t index = 0;
-
-	(void) this->goToHead();
-	while (pCurrent != tmp) {
-		try {
-			(void) this->next();
-		} catch (const LinkedList<T>::MException& e) {
-			break;
-		}
-		index++;
-	};
-
-	return index;
+	return itemCount;
 }
