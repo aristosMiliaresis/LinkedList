@@ -13,6 +13,11 @@
  */
 template <class T> class LinkedList {
 private:
+	Node<T>* pHead;				// pointer to head of the list
+	Node<T>* pTail;				// pointer to tail of the list
+	mutable Node<T>* pIndex;	// list index pointer
+	uint32_t itemCount;			// count of items in the list
+	
 	/**
 	 * <h1>Node</h1>
 	 * 
@@ -21,29 +26,8 @@ private:
 	template <class T2> struct Node {
 		struct Node* pPrev;		// pointer to previous node.
 		struct Node* pNext;		// pointer to next node.
-		T2 value;				// pointer to stored value.
+		T2 item;				// pointer to stored item.
 	};
-
-	Node<T>* pHead;				// pointer to head of the list
-	Node<T>* pTail;				// pointer to tail of the list
-	mutable Node<T>* pCurrent;	// pointer to current node
-	uint32_t nodeCount;			// count of nodes in the list
-
-public:
-	/**
-	 * Ctor.
-	 */
-	LinkedList();
-	
-	/**
-	 * Copy Ctor.
-	 */
-	LinkedList(const LinkedList& obj);
-	
-	/**
-	 * Dtor.
-	 */
-	~LinkedList();
 	
 	/**
 	 * Custom exception object class.
@@ -61,104 +45,112 @@ public:
 		
 		static const char* errStrings[];
 	};
+
+public:
+	/**
+	 * Ctor.
+	 */
+	LinkedList();
 	
 	/**
-	 * Adds new node at the tail of the list
-	 * @param the value to be pushed at the tail of the list.
+	 * Copy Ctor.
+	 * @param `obj` the LinkedList object to copy.
+	 */
+	LinkedList(const LinkedList& obj);
+	
+	/**
+	 * Dtor.
+	 */
+	~LinkedList();
+	
+	/**
+	 * Adds new item at the tail of the list
+	 * @param `item` the item to be pushed at the tail of the list.
 	 * @throws ERR_LIST_FULL if node count equals UINT32_MAX.
 	 */
-	void push(T value);
+	void push(T item);
 	
 	/**
-	 * Removes node at the tail of the list.
-	 * @return the value at the tail of the list.
+	 * Removes item from the tail of the list.
+	 * @return the item at the tail of the list.
 	 * @throws ERR_EMPTY_LIST if list is empty.
 	 */
 	T pop();
 	
 	/**
-	 * Inserts new node at suplied index.
-	 * @param `value` the value to be inserted to the list.
-	 * @param `index` the index at which to insert the value.
+	 * Adds new item at the head of the list
+	 * @param `item` the item to be inserted at the head of the list.
+	 * @throws ERR_LIST_FULL if node count equals UINT32_MAX.
+	 */
+	void enqueue(T item);
+	
+	/**
+	 * Removes item from the head of the list.
+	 * @return the item at the head of the list.
+	 * @throws ERR_EMPTY_LIST if list is empty.
+	 */
+	T dequeue();
+	
+	/**
+	 * Inserts new item at provided index.
+	 * @param `item` the item to be inserted to the list.
+	 * @param `index` the index at which to insert the item.
 	 * @return true if insert was successful.
 	 * @throws ERR_LIST_FULL if node count equals UINT32_MAX.
 	 */
-	bool insert(T value, uint32_t index);
+	bool set(T item, uint32_t index);
 	
 	/**
-	 * Replaces value of node at suplied index.
-	 * @param `value` the new value.
-	 * @param `index` the index of the node to replace.
-	 * @return true if replace was successful.
-	 */
-	bool replace(T value, uint32_t index);
-	
-	/**
-	 * Remove node at suplied index.
-	 * @param `index` the index of the node to remove.
+	 * Remove item at provided index.
+	 * @param `index` the index of the item to remove.
 	 * @return true if remove was successful.
 	 */
 	bool remove(uint32_t index);
 	
 	/**
-	 * Go to node at suplied index.
-	 * @param `index` the index of the node to go.
-	 * @return the node at suplied index.
+	 * Replaces item at provided index.
+	 * @param `item` the new item.
+	 * @param `index` the index of the item to replace.
+	 * @return true if replace was successful.
+	 */
+	bool replace(T item, uint32_t index);
+	
+	/**
+	 * Go to provided index and return item.
+	 * @param `index` the index of the item to get.
+	 * @return the item at provided index.
 	 * @throws INDEX_OUT_OF_RANGE if index greater than node count.
 	 */
-	T goTo(uint32_t index) const;
+	T get(uint32_t index) const;
 	
 	/**
-	 * Go to the head of the list
-	 * @return the value at the head of the list.
-	 */
-	T goToHead() const;
-	
-	/**
-	 * Go to the tail of the list
-	 * @return the value at the tail of the list.
-	 */
-	T goToTail() const;
-	
-	/**
-	 * Go to next node.
-	 * @return the next value.
+	 * Go to next item.
+	 * @return the next item.
 	 * @throws ERR_NO_NEXT if index at tail of list.
 	 */
 	T next() const;
 	
 	/**
-	 * Go to previous node.
-	 * @return the previous value.
+	 * Go to previous item.
+	 * @return the previous item.
 	 * @throws ERR_NO_PREV if index at head of list.
 	 */
 	T prev() const;
 	
 	/**
-	 * Returns true if current node has next node or false otherwise.
+	 * Returns true if list has next item or false otherwise.
 	 */
 	bool hasNext() const;
 	
 	/**
-	 * Returns true if current node has previous node or false otherwise.
+	 *  Returns true if list has previous item or false otherwise.
 	 */
 	bool hasPrev() const;
 
 	/**
-	 * Return the current node value.
+	 * Getter for the `itemCount` variable member.
 	 */
-	T getCurrent() const;
-	
-	/**
-	 * Getter for the `nodeCount` variable member.
-	 */
-	uint32_t getCount() const;
-
-	/**
-	 * Return the count of nodes in the list.
-	 * throws ERR_EMPTY_LIST if list is empty.
-	 */
-	uint32_t getCurrentIndex() const;
+	uint32_t count() const;
 };
 
 
