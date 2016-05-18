@@ -13,10 +13,10 @@
  */
 template <class T> class LinkedList {
 private:
-	Node<T>* pHead;				// pointer to head of the list
-	Node<T>* pTail;				// pointer to tail of the list
-	mutable Node<T>* pIndex;	// list index pointer
-	uint32_t itemCount;			// count of items in the list
+	Node<T>* pHead;	            // pointer to head of the list
+	Node<T>* pTail;             // pointer to tail of the list
+	mutable Node<T>* pIndex;    // list index pointer
+	uint32_t itemCount;         // count of items in the list
 	
 	/**
 	 * <h1>Node</h1>
@@ -24,9 +24,9 @@ private:
 	 * <p>A struct representing a linked list node.</p>
 	 */
 	template <class T2> struct Node {
-		struct Node* pPrev;		// pointer to previous node.
-		struct Node* pNext;		// pointer to next node.
-		T2 item;				// pointer to stored item.
+		struct Node* pPrev;    // pointer to previous node.
+		struct Node* pNext;    // pointer to next node.
+		T2 item;               // pointer to stored item.
 	};
 	
 	/**
@@ -39,7 +39,8 @@ private:
 		
 		MException(const errCodes error) : m_error(error) {}
 	
-		const char* what() const noexcept {
+		const char* what() const noexcept 
+		{
 			return errStrings[m_error];
 		}
 		
