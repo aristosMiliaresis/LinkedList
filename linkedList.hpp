@@ -4,40 +4,57 @@
 
 #include <stdint.h>
 #include <exception>
+#include <vector>
 
 
 /**
  * <h1>LinkedList</h1>
- *
- * <p>A simple linked list library class.</p>
  */
 template <class T> class LinkedList {
 private:
 	/**
 	 * <h1>Node</h1>
-	 * 
-	 * <p>A struct representing a linked list node.</p>
 	 */
 	template <class T2> struct Node {
-		struct Node* pPrev;    // pointer to previous node.
-		struct Node* pNext;    // pointer to next node.
-		T2 item;               // pointer to stored item.
+		struct Node* pPrev;
+		struct Node* pNext;	
+		T2 item;
 	};
 	
-	Node<T>* pHead;	            // pointer to head of the list
-	Node<T>* pTail;             // pointer to tail of the list
-	mutable Node<T>* pIndex;    // list index pointer
-	uint32_t itemCount;         // count of items in the list
-	
+	Node<T>* pHead;	
+	Node<T>* pTail;	
+	mutable Node<T>* pIndex;
+	uint32_t itemCount;	
+
+	/**
+	 * Removes the item pointed to by list index.
+	 * @throws ERR_EMPTY_LIST if list is empty.
+	 */
+	void removeAtCurrentIndex();
+
+	/**
+	 * Inserts item at the list index.
+	 * @param `item` the item to insert.
+	 * @throws ERR_LIST_FULL if list is full.
+	 */
+	void insertAtCurrentIndex(T item);
+
 	/**
 	 * Custom exception object class.
 	 */
-	class MException : public std::exception {	
+	class LinkedListExcept : public std::exception {	
 	public:
-		typedef const enum {ERR_EMPTY_LIST=0, ERR_NO_PREV=1, ERR_NO_NEXT=2, ERR_LIST_FULL=3, INDEX_OUT_OF_RANGE=4} errCodes;
+		typedef const enum 
+		{
+			ERR_EMPTY_LIST=0,
+			ERR_NO_PREV=1,
+			ERR_NO_NEXT=2,
+			ERR_LIST_FULL=3,
+			INDEX_OUT_OF_RANGE=4
+		} errCodes;
 		errCodes m_error;
 		
-		MException(const errCodes error) : m_error(error) {}
+		LinkedListExcept(const errCodes error) : m_error(error) {}
 	
 		const char* what() const noexcept 
 		{
@@ -54,75 +71,155 @@ public:
 	LinkedList();
 	
 	/**
-	 * Copy Ctor.
-	 * @param `obj` the LinkedList object to copy.
-	 */
-	LinkedList(const LinkedList& obj);
-	
-	/**
 	 * Dtor.
 	 */
 	~LinkedList();
+
+	/**
+	 * Copy Ctor.
+	 * @param `obj` the LinkedList object to copy.
+	 */
+	LinkedList(const LinkedList<T>& obj);
 	
 	/**
-	 * Adds new item at the tail of the list
+	 * Add new item at the tail of the list and move the list index to the tail of the list.
 	 * @param `item` the item to be pushed at the tail of the list.
 	 * @throws ERR_LIST_FULL if node count equals UINT32_MAX.
 	 */
 	void push(T item);
 	
 	/**
-	 * Removes item from the tail of the list.
+	 * Remove item from the tail of the list and move the list index to the tail of the list.
 	 * @return the item at the tail of the list.
 	 * @throws ERR_EMPTY_LIST if list is empty.
 	 */
 	T pop();
 	
 	/**
-	 * Adds new item at the head of the list
+	 * Add new item at the head of the list and move the list index to the head of the list.
 	 * @param `item` the item to be inserted at the head of the list.
 	 * @throws ERR_LIST_FULL if node count equals UINT32_MAX.
 	 */
 	void enqueue(T item);
 	
 	/**
-	 * Removes item from the head of the list.
+	 * Remove item from the head of the list and move the list index to the head of the list.
 	 * @return the item at the head of the list.
 	 * @throws ERR_EMPTY_LIST if list is empty.
 	 */
 	T dequeue();
 	
 	/**
-	 * Inserts new item at provided index.
+	 * Insert new item at provided index and move the list index to the new node.
 	 * @param `item` the item to be inserted to the list.
 	 * @param `index` the index at which to insert the item.
 	 * @return true if insert was successful.
-	 * @throws ERR_LIST_FULL if node count equals UINT32_MAX.
 	 */
-	bool set(T item, uint32_t index);
+	bool insert(T item, uint32_t index);
 	
 	/**
-	 * Remove item at provided index.
+	 * Remove item at provided index and move the list index to the provided index.
 	 * @param `index` the index of the item to remove.
 	 * @return true if remove was successful.
 	 */
-	bool remove(uint32_t index);
+	bool removeAt(uint32_t index);
+
+	/**
+	 * Remove the first instance of item and move the index to the previouse node.
+	 * @param `item` the item to be removed.
+	 * @return true if item was found in the list or false otherwise.
+	 */
+	bool remove(T item);
+
+	/**
+	 * Remove all instances of item and move the index to the previouse node.
+	 * @param `item` the item to be removed.
+	 * @return the number of instances removed.
+	 */
+	uint32_t removeAll(T item);
 	
 	/**
-	 * Replaces item at provided index.
+	 * Replace item at provided index and move the list index to the provided index.
 	 * @param `item` the new item.
 	 * @param `index` the index of the item to replace.
 	 * @return true if replace was successful.
 	 */
 	bool replace(T item, uint32_t index);
-	
+
+	/**
+	 * Returns the last value in the list.
+	 */
+	T getLast() const;
+
+	/**
+	 * Returns the first value in the list.
+	 */
+	T getFirst() const;
+
 	/**
 	 * Go to provided index and return item.
 	 * @param `index` the index of the item to get.
 	 * @return the item at provided index.
-	 * @throws INDEX_OUT_OF_RANGE if index greater than node count.
+	 * @throws INDEX_OUT_OF_RANGE if index greater than item count.
 	 */
 	T get(uint32_t index) const;
+
+	/**
+	 * Search the list for the provided item.
+	 * @param `item` the item to search for in the list.
+	 * @return true if item found or false if not found.
+	 */
+	bool contains(T item) const;
+
+	/**
+	 * Emptys the list from all items.
+	 */
+	void clear();
+
+	/**
+	 * Returns a vector containing all the items in the list or NULL if list is empty.
+	 */
+	std::vector<T>* toVector() const;
+	
+	/**
+	 * Get the current list index.
+	 */
+	uint32_t getCurrIndex() const;
+
+	/**
+	 * Return the index of the next instance of item.
+	 * @param `item` the item to search for.
+	 * @return the index of the next instance of item or UINT32_MAX if not found.
+	 */
+	uint32_t nextIndexOf(T item) const;
+
+	 /**
+	  * Return the index of the previouse instance of item.
+	  * @param `item` the item to search for.
+	  * @return the index of the previouse instance of item or UINT32_MAX if not found.
+	  */
+	uint32_t prevIndexOf(T item) const;
+
+	/**
+	 * Get the index of the first instans of item.
+	 * @param `item` the item to search for.
+	 * @return the index of the first item instance or UINT32_MAX if not found.
+	 */
+	uint32_t indexOf(T item) const;
+
+	/**
+	 * Get the index of the last instans of item.
+	 * @param `item` the item to search for.
+	 * @return the index of the last item instance or UINT32_MAX if not found.
+	 */
+	uint32_t lastIndexOf(T item) const;
+
+	/**
+	 * Return a vector containing indexs of all item instances. 
+	 * @param `item` the item to search for.
+	 * @return a vector of uint32_t values or NULL if not found.
+	 */
+	std::vector<uint32_t>* allIndexsOf(T item) const;
 	
 	/**
 	 * Go to next item.
@@ -144,12 +241,12 @@ public:
 	bool hasNext() const;
 	
 	/**
-	 *  Returns true if list has previous item or false otherwise.
+	 * Returns true if list has previous item or false otherwise.
 	 */
 	bool hasPrev() const;
 
 	/**
-	 * Getter for the `itemCount` variable member.
+	 * Getter for the `itemCount` member variable.
 	 */
 	uint32_t count() const;
 };
