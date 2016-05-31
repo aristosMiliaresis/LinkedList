@@ -8,7 +8,7 @@ template <class T> const char* LinkedList<T>::LinkedListExcept::errStrings[] = {
 	"prev() failed: index points to head of the list!",
 	"next() failed: index points to tail of the list!",
 	"insertAtCurrentIndex/enqueue/push() failed: list is full!", 
-	"get() failed: index out of range!"	
+	"at() failed: index out of range!"	
 };
 
 
@@ -38,7 +38,7 @@ template <class T> LinkedList<T>::~LinkedList()
 template <class T> LinkedList<T>::LinkedList(const LinkedList<T>& obj) : LinkedList()
 {
 	try {
-		this->push(obj.get(0));
+		this->push(obj.at(0));
 	} catch (const LinkedList<T>::LinkedListExcept& e) {
 		std::cerr << this << " -> LinkedList<T>(): Error in LinkedList<T>(" << &obj << ") > " << e.what() << std::endl;
 		return;
@@ -140,7 +140,7 @@ template <class T> T LinkedList<T>::getFirst() const
 template <class T> bool LinkedList<T>::insert(T item, uint32_t index)
 {
 	try {
-		(void) this->get(index);
+		(void) this->at(index);
 	} catch (const LinkedList<T>::LinkedListExcept& e) {
 		std::cerr << this << " -> LinkedList<T>(): Error in insert() > " << e.what() << std::endl;
 		return false;
@@ -157,7 +157,7 @@ template <class T> bool LinkedList<T>::insert(T item, uint32_t index)
 }
 	
 	
-template <class T> T LinkedList<T>::get(uint32_t index) const
+template <class T> T LinkedList<T>::at(uint32_t index) const
 {
 	if (index >= itemCount)
 	{
@@ -265,7 +265,7 @@ template <class T> std::vector<uint32_t>* LinkedList<T>::allIndexsOf(T item) con
 template <class T> bool LinkedList<T>::replace(T item, uint32_t index)
 {
 	try {
-		(void) this->get(index);
+		(void) this->at(index);
 	} catch (const LinkedList<T>::LinkedListExcept& e) {
 		std::cerr << this << " -> LinkedList<T>(): Error in replace() > " << e.what() << std::endl;
 		return false;
@@ -279,7 +279,7 @@ template <class T> bool LinkedList<T>::replace(T item, uint32_t index)
 template <class T> bool LinkedList<T>::removeAt(uint32_t index)
 {
 	try {
-		(void) this->get(index);
+		(void) this->at(index);
 	} catch (const LinkedList<T>::LinkedListExcept& e) {
 		std::cerr << this << " -> LinkedList<T>(): Error in removeAt() > " << e.what() << std::endl;
 		return false;
@@ -355,7 +355,7 @@ template <class T> std::vector<T>* LinkedList<T>::toVector() const
 	struct Node<T>* savedIndex = pIndex;
 
 	for (uint32_t i = 0; i < itemCount; i++)
-		vec->push_back(this->get(i));
+		vec->push_back(this->at(i));
 
 	pIndex = savedIndex;
 	if (vec->empty())
