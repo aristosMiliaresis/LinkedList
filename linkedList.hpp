@@ -162,7 +162,7 @@ public:
 	 * @return the item at provided index.
 	 * @throws INDEX_OUT_OF_RANGE if index greater than item count.
 	 */
-	T get(uint32_t index) const;
+	T at(uint32_t index) const;
 
 	/**
 	 * Search the list for the provided item.
