@@ -1,3 +1,3 @@
-# LinkedList
+<h2> LinkedList </h2>
 
-<h2>LinkedList library Implementation.</h2>
+<h4>Doubly LinkedList library Implementation.</h4>
