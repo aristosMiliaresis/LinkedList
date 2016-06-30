@@ -7,12 +7,12 @@ template <class T> const char* LinkedList<T>::LinkedListExcept::errStrings[] = {
 	"removeAtCurrentIndex/dequeue/pop() failed: list is empty!",
 	"prev() failed: index points to head of the list!",
 	"next() failed: index points to tail of the list!",
-	"insertAtCurrentIndex/enqueue/push() failed: list is full!", 
-	"at() failed: index out of range!"	
+	"insertAtCurrentIndex/enqueue/push() failed: list is full!",
+	"at() failed: index out of range!"
 };
 
 
-template <class T> LinkedList<T>::LinkedList() : itemCount(0) 
+template <class T> LinkedList<T>::LinkedList() : itemCount(0)
 {
 	try {
 		pHead = new struct Node<T>();
@@ -20,15 +20,15 @@ template <class T> LinkedList<T>::LinkedList() : itemCount(0)
 		std::cerr << exc.what() << std::endl;
 		throw exc;
 	}
-	
-	pHead->pPrev = NULL;
-	pHead->pNext = NULL;
+
+	pHead->pPrev = nullptr;
+	pHead->pNext = nullptr;
 	pTail = pHead;
 	pIndex = pHead;
 }
 
 
-template <class T> LinkedList<T>::~LinkedList() 
+template <class T> LinkedList<T>::~LinkedList()
 {
 	this->clear();
 	delete pHead;
@@ -51,7 +51,7 @@ template <class T> LinkedList<T>::LinkedList(const LinkedList<T>& obj) : LinkedL
 
 template <class T> void LinkedList<T>::push(T item)
 {
-	if (itemCount == UINT32_MAX)
+	if (itemCount == SIZE_MAX)
 	{
 		throw LinkedListExcept(LinkedListExcept::errCodes::ERR_LIST_FULL);
 		return;
@@ -64,15 +64,15 @@ template <class T> void LinkedList<T>::push(T item)
 			std::cerr << exc.what() << std::endl;
 			throw exc;
 			return;
-		}	
+		}
 		pTail->pNext->pPrev = pTail;
 		pTail = pTail->pNext;
 	}
-	
-	itemCount++;	
+
+	itemCount++;
 	pTail->item = item;
 	pIndex = pTail;
-	
+
 	return;
 }
 
@@ -89,7 +89,7 @@ template <class T> T LinkedList<T>::pop()
 		throw e;
 		return T();
 	}
-	
+
 	return oldItem;
 }
 
@@ -112,12 +112,12 @@ template <class T> void LinkedList<T>::enqueue(T item)
 
 	return;
 }
-	
-	
+
+
 template <class T> T LinkedList<T>::dequeue()
 {
 	const T oldItem = pHead->item;
-	
+
 	pIndex = pHead;
 	try {
 		this->removeAtCurrentIndex();
@@ -126,7 +126,7 @@ template <class T> T LinkedList<T>::dequeue()
 		throw e;
 		return T();
 	}
-	
+
 	return oldItem;
 }
 
@@ -135,9 +135,9 @@ template <class T> T LinkedList<T>::getFirst() const
 {
 	return pHead->item;
 }
-	
 
-template <class T> bool LinkedList<T>::insert(T item, uint32_t index)
+
+template <class T> bool LinkedList<T>::insert(T item, size_t index)
 {
 	try {
 		(void) this->at(index);
@@ -155,9 +155,9 @@ template <class T> bool LinkedList<T>::insert(T item, uint32_t index)
 
 	return true;
 }
-	
-	
-template <class T> T LinkedList<T>::at(uint32_t index) const
+
+
+template <class T> T LinkedList<T>::at(size_t index) const
 {
 	if (index >= itemCount)
 	{
@@ -166,17 +166,17 @@ template <class T> T LinkedList<T>::at(uint32_t index) const
 	}
 
 	pIndex = pHead;
-	for (uint32_t i = 0; i < index; i++)
-		(void) this->next(); 
-	
+	for (size_t i = 0; i < index; i++)
+		(void) this->next();
+
 	return pIndex->item;
 }
 
 
-template <class T> uint32_t LinkedList<T>::getCurrIndex() const
+template <class T> size_t LinkedList<T>::getCurrIndex() const
 {
 	struct Node<T>* savedIndex = pIndex;
-	uint32_t index = 0;
+	size_t index = 0;
 
 	pIndex = pHead;
 	while (pIndex != savedIndex)
@@ -185,7 +185,7 @@ template <class T> uint32_t LinkedList<T>::getCurrIndex() const
 			(void) this->next();
 		} catch (const LinkedList<T>::LinkedListExcept& e) {
 			std::cerr << this << " -> LinkedList<T>(): Error in getCurrIndex() > " << e.what() << std::endl;
-			return UINT32_MAX;
+			return SIZE_MAX;
 		}
 		index++;
 	}
@@ -194,75 +194,75 @@ template <class T> uint32_t LinkedList<T>::getCurrIndex() const
 }
 
 
-template <class T> uint32_t LinkedList<T>::nextIndexOf(T item) const
+template <class T> size_t LinkedList<T>::nextIndexOf(T item) const
 {
-	for (uint32_t index = this->getCurrIndex(); pIndex != pTail;)
+	for (size_t index = this->getCurrIndex(); pIndex != pTail;)
 	{
 		++index;
 		if (this->next() == item)
 			return index;
 	}
 
-	return UINT32_MAX;
+	return SIZE_MAX;
 }
 
 
-template <class T> uint32_t LinkedList<T>::prevIndexOf(T item) const
+template <class T> size_t LinkedList<T>::prevIndexOf(T item) const
 {
- 	for (uint32_t index = this->getCurrIndex(); pIndex != pHead;)
+ 	for (size_t index = this->getCurrIndex(); pIndex != pHead;)
  	{
  		--index;
 		if (this->prev() == item)
 			return index;
 	}
 
-	return UINT32_MAX;
+	return SIZE_MAX;
 }
 
 
-template <class T> uint32_t LinkedList<T>::indexOf(T item) const
+template <class T> size_t LinkedList<T>::indexOf(T item) const
 {
 	pIndex = pHead;
 	return nextIndexOf(item);
 }
 
 
-template <class T> uint32_t LinkedList<T>::lastIndexOf(T item) const
+template <class T> size_t LinkedList<T>::lastIndexOf(T item) const
 {
 	pIndex = pTail;
 	return prevIndexOf(item);
 }
 
 
-template <class T> std::vector<uint32_t>* LinkedList<T>::allIndexsOf(T item) const
+template <class T> std::vector<size_t>* LinkedList<T>::allIndexsOf(T item) const
 {
-	std::vector<uint32_t>* vec;
+	std::vector<size_t>* vec;
 	try {
-		vec = new std::vector<uint32_t>();
+		vec = new std::vector<size_t>();
 	} catch (const std::bad_alloc& exc) {
 		std::cerr << exc.what() << std::endl;
 		throw exc;
-		return NULL;
+		return nullptr;
 	}
-	
-	uint32_t index;
+
+	size_t index;
 
 	pIndex = pHead;
 	while (pIndex != pTail)
 	{
 		index = nextIndexOf(item);
-		if (index == UINT32_MAX)
+		if (index == SIZE_MAX)
 			return vec;
 		vec->push_back(index);
 	}
 
 	if (vec->empty())
-		return NULL;
+		return nullptr;
 	return vec;
 }
 
 
-template <class T> bool LinkedList<T>::replace(T item, uint32_t index)
+template <class T> bool LinkedList<T>::replace(T item, size_t index)
 {
 	try {
 		(void) this->at(index);
@@ -276,7 +276,7 @@ template <class T> bool LinkedList<T>::replace(T item, uint32_t index)
 }
 
 
-template <class T> bool LinkedList<T>::removeAt(uint32_t index)
+template <class T> bool LinkedList<T>::removeAt(size_t index)
 {
 	try {
 		(void) this->at(index);
@@ -302,9 +302,9 @@ template <class T> bool LinkedList<T>::remove(T item)
 }
 
 
-template <class T> uint32_t LinkedList<T>::removeAll(T item)
+template <class T> size_t LinkedList<T>::removeAll(T item)
 {
-	uint32_t instCount = 0;
+	size_t instCount = 0;
 
 	while (this->contains(item))
 	{
@@ -325,7 +325,7 @@ template <class T> bool LinkedList<T>::contains(T item) const
 			return true;
 
 		pIndex = pIndex->pNext;
-	} while (pIndex->pNext != NULL);
+	} while (pIndex->pNext != nullptr);
 
 	if (pIndex->item == item)
 		return true;
@@ -349,29 +349,29 @@ template <class T> std::vector<T>* LinkedList<T>::toVector() const
 	} catch (const std::bad_alloc& exc) {
 		std::cerr << exc.what() << std::endl;
 		throw exc;
-		return NULL;
+		return nullptr;
 	}
-	
+
 	struct Node<T>* savedIndex = pIndex;
 
-	for (uint32_t i = 0; i < itemCount; i++)
+	for (size_t i = 0; i < itemCount; i++)
 		vec->push_back(this->at(i));
 
 	pIndex = savedIndex;
 	if (vec->empty())
-		return NULL;
+		return nullptr;
 	return vec;
 }
 
 
 template <class T> T LinkedList<T>::next() const
 {
-	if (pIndex->pNext != NULL)
+	if (pIndex->pNext != nullptr)
 	{
 		pIndex = pIndex->pNext;
 		return pIndex->item;
 	}
-	
+
 	throw LinkedListExcept(LinkedListExcept::errCodes::ERR_NO_NEXT);
 	return T();
 }
@@ -379,12 +379,12 @@ template <class T> T LinkedList<T>::next() const
 
 template <class T> T LinkedList<T>::prev() const
 {
-	if (pIndex->pPrev != NULL)
+	if (pIndex->pPrev != nullptr)
 	{
 		pIndex = pIndex->pPrev;
 		return pIndex->item;
 	}
-	
+
 	throw LinkedListExcept(LinkedListExcept::errCodes::ERR_NO_PREV);
 	return T();
 }
@@ -392,17 +392,17 @@ template <class T> T LinkedList<T>::prev() const
 
 template <class T> bool LinkedList<T>::hasNext() const
 {
-	return (pIndex->pNext != NULL);
+	return (pIndex->pNext != nullptr);
 }
 
 
 template <class T> bool LinkedList<T>::hasPrev() const
 {
-	return (pIndex->pPrev != NULL);
+	return (pIndex->pPrev != nullptr);
 }
 
 
-template <class T> uint32_t LinkedList<T>::count() const
+template <class T> size_t LinkedList<T>::count() const
 {
 	return itemCount;
 }
@@ -424,17 +424,17 @@ template <class T> void LinkedList<T>::removeAtCurrentIndex()
 	const Node<T>* oldNode = pIndex;
 
 	// remove from the head of the list.
-	if (pIndex->pPrev == NULL)
+	if (pIndex->pPrev == nullptr)
 	{
 		pHead = pHead->pNext;
-		pHead->pPrev = NULL;
+		pHead->pPrev = nullptr;
 		pIndex = pHead;
-	} 
+	}
 	// remove from the tail of the list.
-	else if (pIndex->pNext == NULL)
+	else if (pIndex->pNext == nullptr)
 	{
 		pTail = pTail->pPrev;
-		pTail->pNext = NULL;
+		pTail->pNext = nullptr;
 		pIndex = pTail;
 	}
 	else
@@ -451,13 +451,13 @@ template <class T> void LinkedList<T>::removeAtCurrentIndex()
 
 template <class T> void LinkedList<T>::insertAtCurrentIndex(T item)
 {
-	if (itemCount == UINT32_MAX)
+	if (itemCount == SIZE_MAX)
 	{
 		throw LinkedListExcept(LinkedListExcept::errCodes::ERR_LIST_FULL);
 		return;
 	}
-	
-	if (pIndex->pPrev == NULL)
+
+	if (pIndex->pPrev == nullptr)
 	{
 		if (itemCount == 0)
 		{
@@ -473,8 +473,8 @@ template <class T> void LinkedList<T>::insertAtCurrentIndex(T item)
 				throw exc;
 				return;
 			}
-			
-			newNode->pPrev = NULL;
+
+			newNode->pPrev = nullptr;
 			newNode->pNext = pHead;
 			pHead->pPrev = newNode;
 			pHead = newNode;
@@ -493,7 +493,7 @@ template <class T> void LinkedList<T>::insertAtCurrentIndex(T item)
 			throw exc;
 			return;
 		}
-	
+
 		pIndex->pPrev->pNext = pIndex;
 		pIndex->pPrev->item = item;
 		pIndex->pPrev->pPrev = prevNode;
