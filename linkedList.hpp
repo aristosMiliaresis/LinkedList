@@ -1,5 +1,5 @@
-#ifndef __linked_list_hpp
-#define __linked_list_hpp
+#ifndef __doubly_linked_list_hpp
+#define __doubly_linked_list_hpp
 
 
 #include <cstddef>
@@ -9,23 +9,25 @@
 #define SIZE_MAX (size_t)-1
 
 /**
+ * <h1>Node</h1>
+ *
+ * <p>The LinkedList Node definition.</p>
+ */
+template <class T> struct Node {
+	struct Node* pPrev;
+	struct Node* pNext;
+	T item;
+};
+
+/**
  * <h1>LinkedList</h1>
  */
 template <class T> class LinkedList {
 private:
-	/**
-	 * <h1>Node</h1>
-	 */
-	template <class T2> struct Node {
-		struct Node* pPrev;
-		struct Node* pNext;
-		T2 item;
-	};
-
-	Node<T>* pHead;
-	Node<T>* pTail;
-	mutable Node<T>* pIndex;
-	size_t itemCount;
+	Node<T>* pHead;			// head of list
+	Node<T>* pTail;			// tail of list
+	mutable Node<T>* pIndex;	// index of current item
+	size_t itemCount;		// count of items
 
 	/**
 	 * Removes the item pointed to by list index.
@@ -52,10 +54,10 @@ private:
 			ERR_NO_NEXT=2,
 			ERR_LIST_FULL=3,
 			INDEX_OUT_OF_RANGE=4
-		} errCodes;
-		errCodes m_error;
+		} errCode;
+		errCode m_error;
 
-		LinkedListExcept(const errCodes error) : m_error(error) {}
+		LinkedListExcept(const errCode error) : m_error(error) {}
 
 		const char* what() const noexcept
 		{
@@ -72,15 +74,15 @@ public:
 	LinkedList();
 
 	/**
-	 * Dtor.
-	 */
-	~LinkedList();
-
-	/**
 	 * Copy Ctor.
 	 * @param `obj` the LinkedList object to copy.
 	 */
 	LinkedList(const LinkedList<T>& obj);
+	
+	/**
+	 * Dtor.
+	 */
+	~LinkedList();
 
 	/**
 	 * Add new item at the tail of the list and move the list index to the tail of the list.
@@ -253,4 +255,4 @@ public:
 };
 
 
-#endif // __linked_list_hpp
+#endif // __doubly_linked_list_hpp
